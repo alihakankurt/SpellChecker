@@ -19,17 +19,17 @@ class SpellChecker:
         for target in self.words:
             targetLength: int = len(target)
 
-            dp: list[list[int]] = [
-                [x if y == 0 else y if x == 0 else 0
-                    for x in range(targetLength + 1)]
-                for y in range(wordLength + 1)
-            ]
+            currentRow: list[int] = [y for y in range(targetLength + 1)]
+            for y in range(1, wordLength + 1):
+                previousRow: list[int] = currentRow
+                currentRow = [y] + [0 for _ in range(targetLength)]
+                for x in range(1, targetLength + 1):
+                    addition: int = previousRow[x] + 1
+                    deletion: int = currentRow[x - 1] + 1
+                    substitution: int = previousRow[x - 1] + (word[y - 1] != target[x - 1])
+                    currentRow[x] = min(addition, deletion, substitution)
 
-            for y in range(wordLength):
-                for x in range(targetLength):
-                    dp[y + 1][x + 1] = min(dp[y][x], dp[y][x + 1], dp[y + 1][x]) + (word[y] != target[x])
-
-            targetDistance: int = dp[wordLength][targetLength]
+            targetDistance: int = currentRow[targetLength]
             if targetDistance <= distance:
                 result.append((target, targetDistance))
 
